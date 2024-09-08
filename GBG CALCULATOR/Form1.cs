@@ -29,17 +29,24 @@ namespace GBG_CALCULATOR
         /// Detect when equal button is pressed 
         /// </summary>
         private bool isEqualPressed = false;
+        /// <summary>
+        /// List to store calculation history
+        /// </summary>
+        private List<string> calculationHistory = new List<string>();
 
-//==============================================================================================================================================================================//
+        //==============================================================================================================================================================================//
 
         public Form1()
         {
             InitializeComponent();
+            pnlHistory.Visible = false;
+
+
         }
 
 //==============================================================================================================================================================================//
         /// <summary>
-        /// Handles all the click events for buttons 0 to 9
+        /// Handles all the click events for buttons 0 to 9 and .
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -63,7 +70,7 @@ namespace GBG_CALCULATOR
                 {
                     txtMainDisplay.Text = "";
                 }
-                if (txtSumDisplay.Text == "Current Sum")
+                if (txtSumDisplay.Text == "0")
                 {
                     txtSumDisplay.Text = "";
                 }
@@ -104,6 +111,7 @@ namespace GBG_CALCULATOR
                 // Handle arithmetic operators
                 if (operatorText == "+" || operatorText == "−" || operatorText == "X" || operatorText == "÷")
                 {
+                    
                     if (txtMainDisplay.Text != "")
                     {
                         firstNumber = double.Parse(txtMainDisplay.Text);
@@ -194,6 +202,10 @@ namespace GBG_CALCULATOR
                     break;
             }
 
+            // Add the current calculation to the history list
+            string historyEntry = $"{txtSumDisplay.Text}{secondNumber} = {result}";
+            calculationHistory.Add(historyEntry);
+
             txtMainDisplay.Text = result.ToString();
             txtSumDisplay.Text += secondNumber.ToString();
 
@@ -205,6 +217,110 @@ namespace GBG_CALCULATOR
             isEqualPressed = true;
         }
 //==============================================================================================================================================================================//
+        /// <summary>
+        /// backspace method to clear main display text
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnBackSpace_Click(object sender, EventArgs e)
+        {
+            if (txtMainDisplay.Text.Length > 0)
+            {
+                txtMainDisplay.Text = txtMainDisplay.Text.Substring(0, txtMainDisplay.Text.Length - 1); // Remove last character
+            }
+
+            // If no characters left, set the display to 0
+            if (string.IsNullOrEmpty(txtMainDisplay.Text))
+            {
+                txtMainDisplay.Text = "0";
+            }
+        }
+//==========================================================================================================================================================================//
+       /// <summary>
+       /// clears user input, main text display
+       /// </summary>
+       /// <param name="sender"></param>
+       /// <param name="e"></param>
+        private void btnClearEntry_Click(object sender, EventArgs e)
+        {
+            txtMainDisplay.Text = "0";
+        }
+//==========================================================================================================================================================================//
+        /// <summary>
+        /// sets all variables back to zero.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            txtMainDisplay.Text = "0";   
+            txtSumDisplay.Text = "";     
+            firstNumber = 0;             
+            secondNumber = 0;            
+            operation = "";             
+            isEqualPressed = false;      
+        }
+//==========================================================================================================================================================================//
+        /// <summary>
+        /// history button 
+        /// displays all calculation history
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnHistory_Click(object sender, EventArgs e)
+        {
+            // Toggle the visibility of the history panel
+            pnlHistory.Visible = !pnlHistory.Visible;
+
+            if (pnlHistory.Visible)
+            {
+               
+
+                // Bring the panel to the front to ensure it is visible above other controls
+                pnlHistory.BringToFront();
+
+                lstHistory.Items.Clear(); // Clear current items
+
+                if (calculationHistory.Count == 0)
+                {
+                    // Display "No history" if there are no items
+                    lblNoHistory.Visible = true;
+                }
+                else
+                {
+                    // Add each entry to the ListBox
+                    foreach (string history in calculationHistory)
+                    {
+                        lstHistory.Items.Add(history);
+                    }
+                    lblNoHistory.Visible = false; // Hide "No history" message if there are items
+                }
+            }
+        }
+//==========================================================================================================================================================================//
+        /// <summary>
+        /// method to clear history list
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnHistoryClear_Click(object sender, EventArgs e)
+        {
+            // Clear the history list and ListBox
+            calculationHistory.Clear();
+            lstHistory.Items.Clear();
+
+            // Check if history is empty and show/hide the label accordingly
+            if (calculationHistory.Count == 0)
+            {
+                lblNoHistory.Visible = true; // Show "No history" message
+            }
+            else
+            {
+                lblNoHistory.Visible = false; // Hide "No history" message
+            }
+        }
+        //==========================================================================================================================================================================//
+
     }
 }
 //=========================================================================END OF FILE==========================================================================================//
