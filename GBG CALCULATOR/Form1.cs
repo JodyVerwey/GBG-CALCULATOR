@@ -33,6 +33,10 @@ namespace GBG_CALCULATOR
         /// List to store calculation history
         /// </summary>
         private List<string> calculationHistory = new List<string>();
+        /// <summary>
+        /// detect if operator is clicked
+        /// </summary>
+        private bool isOperatorClicked = false;
 
         //==============================================================================================================================================================================//
 
@@ -44,7 +48,7 @@ namespace GBG_CALCULATOR
 
         }
 
-//==============================================================================================================================================================================//
+        //==============================================================================================================================================================================//
         /// <summary>
         /// Handles all the click events for buttons 0 to 9 and .
         /// </summary>
@@ -54,25 +58,19 @@ namespace GBG_CALCULATOR
         {
             Button clickedButton = sender as Button;
 
-            // Clears calculator default startup text if it exists
             if (clickedButton != null)
             {
-                // Clear the displays if the last action was pressing the equal button
-                if (isEqualPressed)
+                // Clear the display if an operator was clicked
+                if (isOperatorClicked)
                 {
                     txtMainDisplay.Text = "";
-                    txtSumDisplay.Text = "";
-                    isEqualPressed = false;
+                    isOperatorClicked = false;
                 }
 
                 // Clears calculator default startup text if it exists
                 if (txtMainDisplay.Text == "0")
                 {
                     txtMainDisplay.Text = "";
-                }
-                if (txtSumDisplay.Text == "0")
-                {
-                    txtSumDisplay.Text = "";
                 }
 
                 // Handle decimal point separately to avoid multiple decimals in one number
@@ -92,7 +90,8 @@ namespace GBG_CALCULATOR
             }
         }
 
-//==============================================================================================================================================================================//
+
+        //==============================================================================================================================================================================//
         /// <summary>
         /// Handles all Operator buttons.
         /// Gets result from special operators
@@ -108,32 +107,68 @@ namespace GBG_CALCULATOR
             {
                 string operatorText = button.Text;
 
-                // Handle arithmetic operators
+                if (operatorText == "±")
+                {
+                    // Handle toggle sign operation
+                    if (!string.IsNullOrEmpty(txtMainDisplay.Text))
+                    {
+                        double num = double.Parse(txtMainDisplay.Text);
+                        num = -num;
+                        txtMainDisplay.Text = num.ToString();
+                    }
+                    return;
+                }
+
+                // If equal was pressed before, clear the sum display and start with the new result
+                if (isEqualPressed)
+                {
+                    txtSumDisplay.Text = firstNumber.ToString() + " " + operatorText + " ";
+                    isEqualPressed = false;
+                }
+                else
+                {
+                    txtSumDisplay.Text += txtMainDisplay.Text + " " + operatorText + " ";
+                }
+
                 if (operatorText == "+" || operatorText == "−" || operatorText == "X" || operatorText == "÷")
                 {
-                    
-                    if (txtMainDisplay.Text != "")
+                    if (!string.IsNullOrEmpty(operation))
                     {
-                        firstNumber = double.Parse(txtMainDisplay.Text);
-                    }
-                    operation = operatorText;
+                        secondNumber = double.Parse(txtMainDisplay.Text);
+                        double result = 0.0;
 
-                    // Only append the first number and the operator, not the result from special operators
-                    if (txtSumDisplay.Text.Contains("√") || txtSumDisplay.Text.Contains("²") || txtSumDisplay.Text.Contains("1/") || txtSumDisplay.Text.Contains("-"))
-                    {
-                        // append the arithmetic operator
-                        txtSumDisplay.Text = txtSumDisplay.Text.Trim() + " " + operation + " ";
+                        switch (operation)
+                        {
+                            case "+":
+                                result = firstNumber + secondNumber;
+                                break;
+                            case "−":
+                                result = firstNumber - secondNumber;
+                                break;
+                            case "X":
+                                result = firstNumber * secondNumber;
+                                break;
+                            case "÷":
+                                result = firstNumber / secondNumber;
+                                break;
+                        }
+
+                        firstNumber = result;
+                        txtMainDisplay.Text = result.ToString();
                     }
                     else
                     {
-                        txtSumDisplay.Text += txtMainDisplay.Text + " " + operation + " ";
+                        firstNumber = double.Parse(txtMainDisplay.Text);
                     }
 
-                    txtMainDisplay.Text = "";
+                    operation = operatorText;
+
+                    // Set the flag to true to indicate an operator was clicked
+                    isOperatorClicked = true;
                 }
-                // Handle special operators
                 else
                 {
+                    // Handle special operators (√, x², 1/x, %)
                     double num = double.Parse(txtMainDisplay.Text);
                     double result = 0.0;
 
@@ -144,36 +179,30 @@ namespace GBG_CALCULATOR
                             txtMainDisplay.Text = result.ToString();
                             txtSumDisplay.Text = "√" + num.ToString() + " ";
                             break;
-
                         case "x²":
                             result = Math.Pow(num, 2);
                             txtMainDisplay.Text = result.ToString();
                             txtSumDisplay.Text = num.ToString() + "² ";
                             break;
-
                         case "1/𝑥":
                             result = 1 / num;
                             txtMainDisplay.Text = result.ToString();
                             txtSumDisplay.Text = "1/" + num.ToString() + " ";
                             break;
-
                         case "%":
                             result = num / 100;
                             txtMainDisplay.Text = result.ToString();
                             txtSumDisplay.Text = num.ToString() + "% ";
-                            break;
-
-                        case "±":
-                            num = -num;
-                            txtMainDisplay.Text = num.ToString();
-                            txtSumDisplay.Text = num.ToString() + " ";
                             break;
                     }
                 }
             }
         }
 
-//==============================================================================================================================================================================//
+
+
+
+        //==============================================================================================================================================================================//
         /// <summary>
         /// Get result from the calculation
         /// Display result on Main display
@@ -202,21 +231,23 @@ namespace GBG_CALCULATOR
                     break;
             }
 
-            // Add the current calculation to the history list
-            string historyEntry = $"{txtSumDisplay.Text}{secondNumber} = {result}";
+            // Clear the sum display and add the final result
+            txtSumDisplay.Text = firstNumber.ToString() + " " + operation + " " + secondNumber.ToString() + " = ";
+
+            // Update the main display with the result
+            txtMainDisplay.Text = result.ToString();
+
+            // Add the calculation to history
+            string historyEntry = $"{firstNumber} {operation} {secondNumber} = {result}";
             calculationHistory.Add(historyEntry);
 
-            txtMainDisplay.Text = result.ToString();
-            txtSumDisplay.Text += secondNumber.ToString();
-
-            // Clear the stored values after calculation
-            firstNumber = 0;
+            // Reset values
+            firstNumber = result; // Keep the result for future operations
             secondNumber = 0;
             operation = "";
-
-            isEqualPressed = true;
+            isEqualPressed = true; // Mark that the equal button was pressed
         }
-//==============================================================================================================================================================================//
+        //==============================================================================================================================================================================//
         /// <summary>
         /// backspace method to clear main display text
         /// </summary>
