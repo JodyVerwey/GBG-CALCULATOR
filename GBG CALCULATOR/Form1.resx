@@ -142,18 +142,18 @@
   </data>
   <data name="btnHistoryClear.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        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
+        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
 </value>
   </data>
   <data name="btnBackSpace.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">

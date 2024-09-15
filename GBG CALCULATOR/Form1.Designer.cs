@@ -537,7 +537,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Form1";
+            this.Text = "GBG Calculator";
             this.PnlTitle.ResumeLayout(false);
             this.pnlHistory.ResumeLayout(false);
             this.pnlHistory.PerformLayout();

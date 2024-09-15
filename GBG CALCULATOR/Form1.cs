@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace GBG_CALCULATOR
 {
@@ -60,6 +61,12 @@ namespace GBG_CALCULATOR
 
             if (clickedButton != null)
             {
+                //If the equal button was pressed before, reset the display for new input
+                if (isEqualPressed)
+                {
+                    txtMainDisplay.Text = "";
+                    isEqualPressed = false;
+                }
                 // Clear the display if an operator was clicked
                 if (isOperatorClicked)
                 {
@@ -112,7 +119,7 @@ namespace GBG_CALCULATOR
                     // Handle toggle sign operation
                     if (!string.IsNullOrEmpty(txtMainDisplay.Text))
                     {
-                        double num = double.Parse(txtMainDisplay.Text);
+                        double num = double.Parse(txtMainDisplay.Text, System.Globalization.CultureInfo.InvariantCulture);
                         num = -num;
                         txtMainDisplay.Text = num.ToString();
                     }
@@ -134,7 +141,7 @@ namespace GBG_CALCULATOR
                 {
                     if (!string.IsNullOrEmpty(operation))
                     {
-                        secondNumber = double.Parse(txtMainDisplay.Text);
+                        secondNumber = double.Parse(txtMainDisplay.Text, System.Globalization.CultureInfo.InvariantCulture);
                         double result = 0.0;
 
                         switch (operation)
@@ -158,43 +165,49 @@ namespace GBG_CALCULATOR
                     }
                     else
                     {
-                        firstNumber = double.Parse(txtMainDisplay.Text);
+                        firstNumber = double.Parse(txtMainDisplay.Text, System.Globalization.CultureInfo.InvariantCulture);
                     }
 
                     operation = operatorText;
 
                     // Set the flag to true to indicate an operator was clicked
                     isOperatorClicked = true;
+
+                    // Append only the first number and the operator
+                    txtSumDisplay.Text = firstNumber.ToString() + " " + operatorText;
                 }
                 else
                 {
                     // Handle special operators (√, x², 1/x, %)
-                    double num = double.Parse(txtMainDisplay.Text);
+                    double num = double.Parse(txtMainDisplay.Text, System.Globalization.CultureInfo.InvariantCulture);
                     double result = 0.0;
 
                     switch (operatorText)
                     {
                         case "√":
                             result = Math.Sqrt(num);
-                            txtMainDisplay.Text = result.ToString();
+                            txtMainDisplay.Text += result.ToString();
                             txtSumDisplay.Text = "√" + num.ToString() + " ";
                             break;
                         case "x²":
                             result = Math.Pow(num, 2);
-                            txtMainDisplay.Text = result.ToString();
+                            txtMainDisplay.Text += result.ToString();
                             txtSumDisplay.Text = num.ToString() + "² ";
                             break;
                         case "1/𝑥":
                             result = 1 / num;
-                            txtMainDisplay.Text = result.ToString();
+                            txtMainDisplay.Text += result.ToString();
                             txtSumDisplay.Text = "1/" + num.ToString() + " ";
                             break;
                         case "%":
                             result = num / 100;
-                            txtMainDisplay.Text = result.ToString();
+                            txtMainDisplay.Text += result.ToString();
                             txtSumDisplay.Text = num.ToString() + "% ";
                             break;
                     }
+
+                    // Display the result in txtMian but dont append it to txtSum
+                    txtMainDisplay.Text = result.ToString();
                 }
             }
         }
@@ -350,7 +363,7 @@ namespace GBG_CALCULATOR
                 lblNoHistory.Visible = false; // Hide "No history" message
             }
         }
-        //==========================================================================================================================================================================//
+    //==========================================================================================================================================================================//
 
     }
 }
