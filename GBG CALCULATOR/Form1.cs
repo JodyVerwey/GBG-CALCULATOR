@@ -61,6 +61,12 @@ namespace GBG_CALCULATOR
 
             if (clickedButton != null)
             {
+                // If the "Cannot divide by zero" message is displayed, reset the display and font
+                if (txtMainDisplay.Text == "Cannot divide by zero")
+                {
+                    txtMainDisplay.Text = ""; // Clear the message
+                    txtMainDisplay.Font = new Font(txtMainDisplay.Font.FontFamily, 30, txtMainDisplay.Font.Style); // Reset font size to 30pt
+                }
                 //If the equal button was pressed before, reset the display for new input
                 if (isEqualPressed)
                 {
@@ -240,6 +246,12 @@ namespace GBG_CALCULATOR
                     result = firstNumber * secondNumber;
                     break;
                 case "÷":
+                    if (secondNumber == 0)  // Check for division by zero
+                    {
+                        txtMainDisplay.Text = "Cannot divide by zero";  // Display error message
+                        AdjustFontSize();
+                        return;  // Exit the method early to avoid further processing
+                    }
                     result = firstNumber / secondNumber;
                     break;
             }
@@ -249,6 +261,7 @@ namespace GBG_CALCULATOR
 
             // Update the main display with the result
             txtMainDisplay.Text = result.ToString();
+           
 
             // Add the calculation to history
             string historyEntry = $"{firstNumber} {operation} {secondNumber} = {result}";
@@ -260,6 +273,28 @@ namespace GBG_CALCULATOR
             operation = "";
             isEqualPressed = true; // Mark that the equal button was pressed
         }
+
+        private void AdjustFontSize()
+        {
+            // Measure the width of the text inside the txtMainDisplay
+            SizeF textSize = TextRenderer.MeasureText(txtMainDisplay.Text, txtMainDisplay.Font);
+
+            // Reduce the font size if the text is too wide to fit in the display box
+            while (textSize.Width > txtMainDisplay.ClientSize.Width && txtMainDisplay.Font.Size > 8)
+            {
+                txtMainDisplay.Font = new Font(txtMainDisplay.Font.FontFamily, txtMainDisplay.Font.Size - 1, txtMainDisplay.Font.Style);
+                textSize = TextRenderer.MeasureText(txtMainDisplay.Text, txtMainDisplay.Font);
+            }
+
+            // Optionally, reset the font size if the text fits comfortably (e.g., when shorter text is entered)
+            while (textSize.Width < txtMainDisplay.ClientSize.Width / 2 && txtMainDisplay.Font.Size < 18)
+            {
+                txtMainDisplay.Font = new Font(txtMainDisplay.Font.FontFamily, txtMainDisplay.Font.Size + 1, txtMainDisplay.Font.Style);
+                textSize = TextRenderer.MeasureText(txtMainDisplay.Text, txtMainDisplay.Font);
+            }
+        }
+
+
         //==============================================================================================================================================================================//
         /// <summary>
         /// backspace method to clear main display text
@@ -278,6 +313,7 @@ namespace GBG_CALCULATOR
             {
                 txtMainDisplay.Text = "0";
             }
+            
         }
 //==========================================================================================================================================================================//
        /// <summary>
@@ -288,6 +324,7 @@ namespace GBG_CALCULATOR
         private void btnClearEntry_Click(object sender, EventArgs e)
         {
             txtMainDisplay.Text = "0";
+            txtMainDisplay.Font = new Font(txtMainDisplay.Font.FontFamily, 30, txtMainDisplay.Font.Style);
         }
 //==========================================================================================================================================================================//
         /// <summary>
@@ -302,7 +339,8 @@ namespace GBG_CALCULATOR
             firstNumber = 0;             
             secondNumber = 0;            
             operation = "";             
-            isEqualPressed = false;      
+            isEqualPressed = false;
+            txtMainDisplay.Font = new Font(txtMainDisplay.Font.FontFamily, 30, txtMainDisplay.Font.Style);
         }
 //==========================================================================================================================================================================//
         /// <summary>
